@@ -1,0 +1,47 @@
+version: '3.8'
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+services:
+  # Веб-приложение: находится в обеих сетях, чтобы принимать внешние запросы и общаться с БД
+  web:
+    image: nginx:alpine
+    container_name: web_app
+    ports:
+      - "8081:80"
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+
+  # База данных: изолирована в сети backend, порты наружу НЕ пробрасываются
+  db:
+    image: postgres:15-alpine
+    container_name: database
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    networks:
+      - backend
+
+  # Контейнер-тестер для проверки доступности из сети frontend
+  tester-frontend:
+    image: alpine
+    container_name: tester_front
+    command: sleep infinity
+    networks:
+      - frontend
+
+  # Контейнер-тестер для проверки доступности из сети backend
+  tester-backend:
+    image: alpine
+    container_name: tester_back
+    command: sleep infinity
+    networks:
+      - backend
