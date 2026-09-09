@@ -57,7 +57,7 @@ def index():
 
     return jsonify(
         {
-            "message": "Привет! Приложение работает с PostgreSQL.",
+            "message": "Хайй! Приложение работает!",
             "total_visits": count,
         }
     )
