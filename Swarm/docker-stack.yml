@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  web:
+    image: my-flask-app:latest # Укажите ваш образ (лучше использовать внешний реестр)
+    ports:
+      - "80:80"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first # Сначала запускается новый контейнер, затем гасится старый
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: myapp_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager # Базу данных лучше оставить в одном экземпляре на manager-ноде
+
+volumes:
+  db_data:
